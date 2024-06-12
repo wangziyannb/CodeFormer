@@ -118,7 +118,7 @@ def align_face(filepath, out_path):
     # read image
     img = PIL.Image.open(filepath)
 
-    output_size = 512
+    output_size = 96
     transform_size = 4096
     enable_padding = False
 

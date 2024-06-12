@@ -200,15 +200,20 @@ if __name__ == '__main__':
             normalize(cropped_face_t, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5), inplace=True)
             cropped_face_t = cropped_face_t.unsqueeze(0).to(device)
 
-            try:
-                with torch.no_grad():
-                    output = net(cropped_face_t, w=w, adain=True)[0]
-                    restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
-                del output
-                torch.cuda.empty_cache()
-            except Exception as error:
-                print(f'\tFailed inference for CodeFormer: {error}')
-                restored_face = tensor2img(cropped_face_t, rgb2bgr=True, min_max=(-1, 1))
+            # try:
+            with torch.no_grad():
+                traced_model = torch.jit.trace(net, cropped_face_t)
+                output = net(cropped_face_t)[0]
+
+
+
+
+                restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
+            del output
+            torch.cuda.empty_cache()
+            # except Exception as error:
+            #     print(f'\tFailed inference for CodeFormer: {error}')
+            #     restored_face = tensor2img(cropped_face_t, rgb2bgr=True, min_max=(-1, 1))
 
             restored_face = restored_face.astype('uint8')
             face_helper.add_restored_face(restored_face, cropped_face)
