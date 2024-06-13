@@ -289,7 +289,10 @@ class CodeFormer(VQAutoEncoder):
         for i, block in enumerate(self.encoder.blocks):
             x = block(x)
             if i in out_list:
-                enc_feat_dict[str(x.shape[-1])] = x.clone()
+                last_item = x.shape[-1]
+                if isinstance(last_item, torch.Tensor):
+                    last_item = last_item.item()
+                enc_feat_dict[str(last_item)] = x.clone()
 
         lq_feat = x
 
@@ -317,13 +320,14 @@ class CodeFormer(VQAutoEncoder):
         for i, block in enumerate(self.generator.blocks):
             x = block(x)
             if i in fuse_list:  # fuse after i-th block
-                f_size = str(x.shape[-1])
-                # if type(x.shape[-1]) is not int:
-                #     f_size = str(x.shape[-1].value)
-                # else:
-                #     f_size = str(x.shape[-1])
-                if w > 0:
-                    x = self.fuse_convs_dict[f_size](enc_feat_dict[f_size].detach(), x, w)
+                last_size = x.shape[-1]
+                # if it's a tensor, call item on it
+                if isinstance(last_size, torch.Tensor):
+                    last_size = last_size.item()
+                f_size = str(last_size)
+                fuse_convs_dict_entry = self.fuse_convs_dict[f_size]
+                enc_feat_dict_entry = enc_feat_dict[f_size]
+                x = fuse_convs_dict_entry(enc_feat_dict_entry.detach(), x, w)
         out = x
         # logits doesn't need softmax before cross_entropy loss
         return out, logits, lq_feat

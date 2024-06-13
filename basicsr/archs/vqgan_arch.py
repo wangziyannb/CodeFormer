@@ -382,11 +382,11 @@ class VQAutoEncoder(nn.Module):
                 raise ValueError(f'Wrong params!')
 
 
-    def forward(self, x):
-        x = self.encoder(x)
-        quant, codebook_loss, quant_stats = self.quantize(x)
-        x = self.generator(quant)
-        return x, codebook_loss, quant_stats
+    # def forward(self, x):
+    #     x = self.encoder(x)
+    #     quant, codebook_loss, quant_stats = self.quantize(x)
+    #     x = self.generator(quant)
+    #     return x, codebook_loss, quant_stats
 
 
 
