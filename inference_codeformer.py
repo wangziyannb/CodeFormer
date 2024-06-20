@@ -203,6 +203,7 @@ if __name__ == '__main__':
             # try:
             with torch.no_grad():
                 traced_model = torch.jit.trace(net, cropped_face_t)
+                torch.jit.save(traced_model, 'traced.pth')
                 output = net(cropped_face_t)[0]
 
 
